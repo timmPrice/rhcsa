@@ -5,18 +5,18 @@ sudo ls
 
 CHECK_VAL=$(grep -cP '(vmx|svm)' /proc/cpuinfo)
 if [ "$CHECK_VAL" -eq 0 ]; then
-    echo "[1/4] break ~ device unable to virtualize"
+    echo "[1/5] break ~ device unable to virtualize"
     exit 1
 fi
 
-echo "[1/4] virtualization ! Ok"
+echo "[1/5] virtualization ! Ok"
 
 if (! lsmod | grep kvm &> /dev/null); then
-    echo "[2/4] break ~ kvm not enabled, try: modprobe kvm"
+    echo "[2/5] break ~ kvm not enabled, try: modprobe kvm"
     exit 1
 fi
 
-echo "[2/4] kvm            ! Ok"
+echo "[2/5] kvm            ! Ok"
 
 if ! rpm -q qemu-kvm libvirt virt-install &> /dev/null ; then
     sudo dnf install -y @virtualization
@@ -25,14 +25,25 @@ fi
 sudo systemctl enable --now libvirtd 
 sudo usermod -aG libvirt $USER
 
-echo "[3/4] dependencies   ! Ok"
+echo "[3/5] dependencies   ! Ok"
 
 if [ ! -f ./images/*.qcow2 ] ; then
-    echo "[4/4] needs rhel guest-image"
+    echo "[4/5] needs rhel guest-image"
     exit 1 
 fi
 
-echo "[4/4] image          ! Ok"
+echo "[4/5] image          ! Ok"
+
+if ! command -v terraform &> /dev/null ; then
+    curl -O https://releases.hashicorp.com/terraform/1.15.3/terraform_1.15.3_linux_amd64.zip &> /dev/null
+    unzip terraform_1.15.3_linux_amd64.zip &> /dev/null
+    sudo mv terraform /usr/local/bin/ &> /dev/null
+    terraform version
+fi
+
+rm -f terraform_1.15.3_linux_amd64.zip LICENSE.txt &> /dev/null
+
+echo "[5/5] terraform      ! Ok"
 
 echo ""
 echo -e "\e[38;5;208m谢谢光临, 欢迎下次再来。\e[0m"
