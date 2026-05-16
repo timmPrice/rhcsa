@@ -1,0 +1,17 @@
+#cloud-config
+hostname: ${hostname}
+
+users: 
+  - name: rhcsa
+    groups: wheel
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: ${user_password}
+
+chpasswd:
+  list: |
+    root:redhat
+  expire: false
+
+ssh_pwauth: true
